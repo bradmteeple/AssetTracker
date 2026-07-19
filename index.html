@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Asset Tracker</title>
+<style>
+  :root {
+    --bg-0: #0b1020;
+    --bg-1: #141b34;
+    --accent: #5b8cff;
+    --accent-2: #7c5bff;
+    --text: #eef2ff;
+    --muted: #9aa6c7;
+    --card: rgba(255, 255, 255, 0.05);
+    --card-border: rgba(255, 255, 255, 0.12);
+    --danger: #ff6b6b;
+    --success: #4ade80;
+    --radius: 16px;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+      Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+
+  body {
+    font-family: var(--font);
+    color: var(--text);
+    background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(124, 91, 255, 0.35), transparent 60%),
+      radial-gradient(1000px 700px at 110% 10%, rgba(91, 140, 255, 0.30), transparent 55%),
+      linear-gradient(160deg, var(--bg-0), var(--bg-1));
+    min-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .app {
+    width: min(560px, 92vw);
+    position: relative;
+  }
+
+  /* Stage machinery */
+  .stage {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .stage.active {
+    position: relative;
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+  /* Author styles override the UA [hidden] rule, so restore it explicitly —
+     this keeps the outgoing stage from ghosting behind the incoming one. */
+  .stage[hidden] { display: none; }
+
+  /* Brand mark */
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    color: var(--muted);
+    margin-bottom: 22px;
+  }
+  .logo {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 18px rgba(91, 140, 255, 0.45);
+  }
+  .logo svg { width: 20px; height: 20px; display: block; }
+
+  /* ---------- Welcome stage ---------- */
+  .welcome-eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-size: 12px;
+    color: var(--muted);
+    opacity: 0;
+    animation: fadeUp 0.7s ease forwards;
+    animation-delay: 0.1s;
+  }
+  .welcome-title {
+    font-size: clamp(28px, 6vw, 46px);
+    font-weight: 700;
+    line-height: 1.15;
+    margin: 14px 0 10px;
+  }
+  .welcome-title .word {
+    display: inline-block;
+    white-space: pre;
+    opacity: 0;
+    transform: translateY(18px);
+    animation: wordIn 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  }
+  .welcome-name {
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .welcome-tagline {
+    color: var(--muted);
+    font-size: 15px;
+    opacity: 0;
+    animation: fadeUp 0.7s ease forwards;
+    animation-delay: 1.9s;
+  }
+  .loader {
+    margin-top: 26px;
+    width: 160px;
+    height: 4px;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    opacity: 0;
+    animation: fadeUp 0.5s ease forwards;
+    animation-delay: 2.0s;
+  }
+  .loader::after {
+    content: "";
+    display: block;
+    height: 100%;
+    width: 0;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    animation: fill 1.1s ease forwards;
+    animation-delay: 2.0s;
+  }
+
+  /* ---------- Card (password + dashboard) ---------- */
+  .card {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 34px 30px;
+    backdrop-filter: blur(14px);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  }
+  .card h2 {
+    margin: 6px 0 4px;
+    font-size: 24px;
+  }
+  .card .sub {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 22px;
+  }
+
+  .field { text-align: left; margin-bottom: 12px; }
+  .field label {
+    display: block;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .input-wrap { position: relative; }
+  .field input {
+    width: 100%;
+    padding: 14px 46px 14px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    background: rgba(0, 0, 0, 0.25);
+    color: var(--text);
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .field input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(91, 140, 255, 0.25);
+  }
+  .toggle {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 12px;
+    padding: 6px 8px;
+    border-radius: 8px;
+  }
+  .toggle:hover { color: var(--text); }
+
+  .btn {
+    width: 100%;
+    margin-top: 8px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    box-shadow: 0 10px 24px rgba(91, 140, 255, 0.4);
+    transition: transform 0.08s ease, filter 0.2s ease;
+  }
+  .btn:hover { filter: brightness(1.08); }
+  .btn:active { transform: translateY(1px); }
+  .btn.secondary {
+    background: transparent;
+    border: 1px solid var(--card-border);
+    box-shadow: none;
+    color: var(--text);
+  }
+
+  .error {
+    color: var(--danger);
+    font-size: 13px;
+    min-height: 18px;
+    margin: 4px 2px 0;
+    text-align: left;
+  }
+  .hint {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 16px;
+  }
+  .hint code {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 2px 6px;
+    border-radius: 6px;
+    color: var(--text);
+  }
+
+  .shake { animation: shake 0.4s ease; }
+
+  /* ---------- Dashboard placeholder ---------- */
+  .dash-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .dash-head h2 { margin: 0; font-size: 22px; }
+  .lock-btn {
+    background: transparent;
+    border: 1px solid var(--card-border);
+    color: var(--muted);
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .lock-btn:hover { color: var(--text); }
+  .assets {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .asset {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: left;
+  }
+  .asset .k { color: var(--muted); font-size: 12px; }
+  .asset .v { font-size: 20px; font-weight: 700; margin-top: 4px; }
+  .empty {
+    border: 1px dashed var(--card-border);
+    border-radius: 12px;
+    padding: 20px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  /* ---------- Keyframes ---------- */
+  @keyframes wordIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fill {
+    to { width: 100%; }
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .stage { transition: opacity 0.2s ease; transform: none; }
+    .welcome-title .word,
+    .welcome-eyebrow,
+    .welcome-tagline,
+    .loader,
+    .loader::after { animation-duration: 0.001s; animation-delay: 0s; opacity: 1; }
+    .welcome-title .word { transform: none; }
+    .shake { animation: none; }
+  }
+</style>
+</head>
+<body>
+  <main class="app">
+    <!-- Stage 1: Welcome animation -->
+    <section class="stage active" id="stage-welcome" aria-label="Welcome">
+      <div class="brand">
+        <span class="logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 7l9-4 9 4-9 4-9-4z" />
+            <path d="M3 7v10l9 4 9-4V7" />
+            <path d="M12 11v10" />
+          </svg>
+        </span>
+        Asset Tracker
+      </div>
+      <div class="welcome-eyebrow">Signing you in</div>
+      <h1 class="welcome-title" id="welcomeTitle" aria-label="Welcome, Bradley Teeple"></h1>
+      <p class="welcome-tagline">Track, manage, and account for every asset — in one place.</p>
+      <div class="loader" aria-hidden="true"></div>
+    </section>
+
+    <!-- Stage 2: Password gate -->
+    <section class="stage" id="stage-password" aria-label="Enter password" hidden>
+      <div class="card">
+        <div class="brand">
+          <span class="logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 7l9-4 9 4-9 4-9-4z" />
+              <path d="M3 7v10l9 4 9-4V7" />
+              <path d="M12 11v10" />
+            </svg>
+          </span>
+          Asset Tracker
+        </div>
+        <h2>Enter your password</h2>
+        <p class="sub">Welcome back, Bradley. Please confirm it's you.</p>
+
+        <form id="pwForm" novalidate>
+          <div class="field">
+            <label for="password">Password</label>
+            <div class="input-wrap">
+              <input id="password" name="password" type="password"
+                     autocomplete="current-password" placeholder="••••••••"
+                     aria-describedby="pwError" />
+              <button type="button" class="toggle" id="togglePw"
+                      aria-label="Show password">Show</button>
+            </div>
+          </div>
+          <div class="error" id="pwError" role="alert" aria-live="polite"></div>
+          <button type="submit" class="btn">Unlock</button>
+        </form>
+
+        <p class="hint">Demo password: <code>assets123</code> — this check runs
+          in your browser only and is not real security.</p>
+      </div>
+    </section>
+
+    <!-- Stage 3: Dashboard placeholder -->
+    <section class="stage" id="stage-dashboard" aria-label="Dashboard" hidden>
+      <div class="card">
+        <div class="dash-head">
+          <h2>Welcome to your Asset Tracker</h2>
+          <button class="lock-btn" id="lockBtn">Lock</button>
+        </div>
+        <div class="assets">
+          <div class="asset">
+            <div class="k">Total assets</div>
+            <div class="v">0</div>
+          </div>
+          <div class="asset">
+            <div class="k">Total value</div>
+            <div class="v">$0</div>
+          </div>
+          <div class="asset">
+            <div class="k">Assigned</div>
+            <div class="v">0</div>
+          </div>
+          <div class="asset">
+            <div class="k">In storage</div>
+            <div class="v">0</div>
+          </div>
+        </div>
+        <div class="empty">
+          No assets yet. This is where your tracked assets will appear —
+          add your first one to get started.
+        </div>
+        <button class="btn secondary" id="addBtn" style="margin-top:16px;">
+          + Add your first asset
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      var DEMO_PASSWORD = "assets123";
+      var WELCOME_NAME = "Bradley Teeple";
+
+      var reduceMotion = window.matchMedia &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      // Build the animated "Welcome, <Name>" title word-by-word.
+      var titleEl = document.getElementById("welcomeTitle");
+      var parts = [
+        { text: "Welcome, ", cls: "" },
+        { text: WELCOME_NAME, cls: "welcome-name" }
+      ];
+      var wordIndex = 0;
+      var baseDelay = 0.35; // seconds, after the eyebrow appears
+      parts.forEach(function (part) {
+        // Split into words but keep spaces so layout is natural.
+        part.text.split(/(\s+)/).forEach(function (chunk) {
+          if (chunk === "") return;
+          var span = document.createElement("span");
+          span.className = "word" + (part.cls ? " " + part.cls : "");
+          span.textContent = chunk;
+          span.style.animationDelay = (baseDelay + wordIndex * 0.16) + "s";
+          titleEl.appendChild(span);
+          if (chunk.trim() !== "") wordIndex++;
+        });
+      });
+
+      // Stage transitions
+      var stages = {
+        welcome: document.getElementById("stage-welcome"),
+        password: document.getElementById("stage-password"),
+        dashboard: document.getElementById("stage-dashboard")
+      };
+
+      function showStage(name) {
+        Object.keys(stages).forEach(function (key) {
+          var el = stages[key];
+          if (key === name) {
+            el.hidden = false;
+            // Force reflow so the transition plays after unhiding.
+            void el.offsetWidth;
+            el.classList.add("active");
+          } else {
+            el.classList.remove("active");
+            el.hidden = true;
+          }
+        });
+      }
+
+      // Auto-advance from welcome -> password once the animation finishes.
+      var welcomeHold = reduceMotion ? 700 : 3200;
+      setTimeout(function () {
+        showStage("password");
+        document.getElementById("password").focus();
+      }, welcomeHold);
+
+      // Show / hide password
+      var pwInput = document.getElementById("password");
+      var toggleBtn = document.getElementById("togglePw");
+      toggleBtn.addEventListener("click", function () {
+        var showing = pwInput.type === "text";
+        pwInput.type = showing ? "password" : "text";
+        toggleBtn.textContent = showing ? "Show" : "Hide";
+        toggleBtn.setAttribute("aria-label",
+          showing ? "Show password" : "Hide password");
+        pwInput.focus();
+      });
+
+      // Password submit (Enter-to-submit works via the form).
+      var form = document.getElementById("pwForm");
+      var errorEl = document.getElementById("pwError");
+      var card = form.closest(".card");
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var value = pwInput.value;
+        if (value === DEMO_PASSWORD) {
+          errorEl.textContent = "";
+          showStage("dashboard");
+        } else {
+          errorEl.textContent = value.trim() === ""
+            ? "Please enter your password."
+            : "Incorrect password. Try the demo password shown below.";
+          card.classList.remove("shake");
+          void card.offsetWidth;
+          card.classList.add("shake");
+          pwInput.select();
+        }
+      });
+
+      // Clear the error as the user retypes.
+      pwInput.addEventListener("input", function () {
+        if (errorEl.textContent) errorEl.textContent = "";
+      });
+
+      // Dashboard actions
+      document.getElementById("lockBtn").addEventListener("click", function () {
+        pwInput.value = "";
+        errorEl.textContent = "";
+        showStage("password");
+        pwInput.focus();
+      });
+      document.getElementById("addBtn").addEventListener("click", function () {
+        alert("Asset creation is coming soon — this is a placeholder dashboard.");
+      });
+    })();
+  </script>
+</body>
+</html>
