@@ -391,78 +391,6 @@
   .profile .p-name { font-size: 14px; font-weight: 500; }
   .profile .p-chev { color: var(--muted); }
 
-  /* ---------- Hero row ---------- */
-  .dash-hero {
-    position: relative;
-    border-radius: 20px;
-    overflow: hidden;
-    border: 1px solid var(--card-border);
-    margin-bottom: 22px;
-    background:
-      radial-gradient(700px 400px at 12% 20%, rgba(124, 58, 237, 0.28), transparent 60%),
-      linear-gradient(120deg, rgba(20, 8, 40, 0.92), rgba(30, 12, 60, 0.55));
-  }
-  .hero-castle {
-    position: absolute;
-    top: 0;
-    right: 0;
-    height: 100%;
-    width: 58%;
-    z-index: 0;
-    display: block;
-  }
-  .hero-content {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 28px;
-    padding: 34px clamp(24px, 3vw, 44px);
-  }
-  .hero-welcome { max-width: 560px; }
-  .hero-welcome .hero-crown { color: var(--gold); margin-bottom: 8px; width: 30px; height: 30px; }
-  .hero-welcome h1 {
-    font-family: var(--font-serif);
-    font-weight: 500;
-    font-size: clamp(38px, 4.6vw, 66px);
-    line-height: 1.0;
-    margin: 0 0 16px;
-  }
-  .hero-welcome h1 .line {
-    display: block;
-    background: linear-gradient(180deg, #ffffff 8%, #e6d6ff 52%, #b98cff 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-  .hero-welcome h1 .name { font-weight: 600; }
-  .hero-welcome .hero-sub { color: var(--muted); font-size: 15px; margin: 0; }
-  .hero-welcome .hero-sub strong { display: block; color: #efe4ff; font-weight: 500; margin-bottom: 4px; font-size: 16px; }
-
-  .netvalue-card {
-    flex: 0 0 auto;
-    min-width: 288px;
-    background: rgba(14, 6, 30, 0.66);
-    border: 1px solid var(--card-border);
-    border-radius: 16px;
-    padding: 22px 24px;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-  }
-  .nv-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    color: var(--muted);
-    font-size: 11.5px;
-    letter-spacing: 1.5px;
-  }
-  .nv-head .nv-eye { cursor: pointer; }
-  .nv-head .nv-eye:hover { color: var(--text); }
-  .nv-value { font-family: var(--font-serif); font-size: 42px; font-weight: 700; margin: 10px 0 6px; }
-  .nv-since { color: var(--muted); font-size: 12px; margin-top: 8px; }
-
   /* delta colours */
   .delta-up { color: var(--positive); font-weight: 600; }
   .delta-down { color: var(--danger); font-weight: 600; }
@@ -652,9 +580,6 @@
     .dash-nav a { padding: 9px 12px; }
     .kpi-grid { grid-template-columns: repeat(2, 1fr); }
     .charts-grid { grid-template-columns: 1fr; }
-    .hero-content { flex-direction: column; }
-    .hero-castle { opacity: 0.5; }
-    .netvalue-card { align-self: stretch; }
   }
   @media (max-width: 620px) {
     .kpi-grid { grid-template-columns: 1fr; }
@@ -1054,72 +979,6 @@
           </button>
         </div>
       </header>
-
-      <!-- Hero row -->
-      <section class="dash-hero">
-        <svg class="hero-castle" viewBox="0 0 600 380" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <defs>
-            <linearGradient id="dashSky" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#2a1150"/><stop offset="0.55" stop-color="#3a1a63"/><stop offset="1" stop-color="#20103f"/>
-            </linearGradient>
-            <linearGradient id="dashFade" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0" stop-color="#160a2c" stop-opacity="1"/><stop offset="0.34" stop-color="#160a2c" stop-opacity="0"/>
-            </linearGradient>
-            <radialGradient id="dashMoon" cx="0.5" cy="0.5" r="0.5">
-              <stop offset="0" stop-color="#efe0ff" stop-opacity="0.85"/><stop offset="1" stop-color="#efe0ff" stop-opacity="0"/>
-            </radialGradient>
-            <linearGradient id="dashWater" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#3a2168"/><stop offset="1" stop-color="#1a0e36"/>
-            </linearGradient>
-          </defs>
-          <rect width="600" height="380" fill="url(#dashSky)"/>
-          <circle cx="392" cy="82" r="116" fill="url(#dashMoon)"/>
-          <circle cx="392" cy="82" r="32" fill="#f3e9ff" opacity="0.85"/>
-          <path d="M0 210 L120 150 L220 205 L330 140 L440 200 L560 150 L600 175 L600 260 L0 260 Z" fill="#2c1652" opacity="0.75"/>
-          <path d="M0 236 L90 196 L200 240 L300 190 L420 240 L520 200 L600 236 L600 300 L0 300 Z" fill="#241147" opacity="0.9"/>
-          <rect y="248" width="600" height="132" fill="url(#dashWater)"/>
-          <g fill="#170b30">
-            <path d="M170 250 C 260 210 360 214 560 246 L560 250 Z" fill="#1d0f3a"/>
-            <rect x="220" y="184" width="28" height="66"/>
-            <rect x="246" y="150" width="34" height="100"/>
-            <rect x="282" y="118" width="42" height="132"/>
-            <rect x="326" y="150" width="30" height="100"/>
-            <rect x="356" y="186" width="26" height="64"/>
-            <path d="M278 118 l21 -26 l25 26 Z"/>
-            <path d="M244 150 l19 -22 l19 22 Z"/>
-            <path d="M324 150 l16 -20 l16 20 Z"/>
-          </g>
-          <g fill="#f4c96b">
-            <rect x="294" y="150" width="6" height="9" rx="1"/><rect x="306" y="150" width="6" height="9" rx="1"/>
-            <rect x="294" y="172" width="6" height="9" rx="1"/><rect x="306" y="172" width="6" height="9" rx="1"/>
-            <rect x="294" y="194" width="6" height="9" rx="1"/><rect x="306" y="194" width="6" height="9" rx="1"/>
-            <rect x="256" y="176" width="5" height="8" rx="1"/><rect x="264" y="176" width="5" height="8" rx="1"/>
-            <rect x="334" y="176" width="5" height="8" rx="1"/><rect x="342" y="176" width="5" height="8" rx="1"/>
-          </g>
-          <g fill="#c89a4a" opacity="0.3">
-            <rect x="294" y="256" width="6" height="22"/><rect x="306" y="256" width="6" height="28"/>
-          </g>
-          <rect width="600" height="380" fill="url(#dashFade)"/>
-        </svg>
-
-        <div class="hero-content">
-          <div class="hero-welcome">
-            <svg class="hero-crown" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.5 8.5l3.8 3.1L12 4.5l5.7 7.1 3.8-3.1L19.6 18H4.4L2.5 8.5z"/><rect x="4.4" y="18.9" width="15.2" height="2.2" rx="0.6"/></svg>
-            <h1><span class="line">Welcome,</span><span class="line name">Bradley Teeple</span></h1>
-            <p class="hero-sub"><strong>Your personal asset tracker</strong>View and manage your total assets in one place.</p>
-          </div>
-
-          <div class="netvalue-card">
-            <div class="nv-head">
-              <span>TOTAL NET WORTH</span>
-              <svg class="nv-eye" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
-            </div>
-            <div class="nv-value editable" contenteditable="true" spellcheck="false" role="textbox" aria-label="Total net worth">$2,845,750</div>
-            <div class="delta-up editable" contenteditable="true" spellcheck="false" role="textbox" aria-label="Net worth change">▲ 4.75% ( $129,350 )</div>
-            <div class="nv-since">vs. Apr 24, 2025</div>
-          </div>
-        </div>
-      </section>
 
       <!-- KPI cards -->
       <section class="kpi-grid">
