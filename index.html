@@ -21,8 +21,8 @@
     --violet-deep: #7c3aed;
     --text: #f3e9ff;
     --muted: #b6a6d6;
-    --card: rgba(124, 58, 237, 0.06);
-    --card-border: rgba(196, 132, 252, 0.18);
+    --card: rgba(16, 8, 34, 0.62);
+    --card-border: rgba(196, 132, 252, 0.22);
     --danger: #ff7a8a;
     --radius: 16px;
     --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
@@ -47,6 +47,31 @@
     justify-content: center;
     overflow: hidden;
   }
+
+  /* ---------- Money background (welcome + password) ---------- */
+  #money-bg,
+  #money-tint {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease;
+  }
+  #money-bg {
+    z-index: -2;
+    overflow: hidden;
+    opacity: 1;
+  }
+  #money-bg svg { width: 100%; height: 100%; display: block; }
+  #money-tint {
+    z-index: -1;
+    opacity: 1;
+    background:
+      linear-gradient(105deg, rgba(11, 4, 22, 0.78) 0%, rgba(20, 7, 40, 0.5) 44%, rgba(32, 11, 62, 0.44) 100%),
+      linear-gradient(0deg, rgba(76, 29, 149, 0.30), rgba(124, 58, 237, 0.20));
+  }
+  /* Hide the money on the dashboard, revealing the plain purple body bg. */
+  body[data-stage="dashboard"] #money-bg,
+  body[data-stage="dashboard"] #money-tint { opacity: 0; }
 
   /* Stage machinery — only one stage is ever un-hidden, so no overlap. */
   .stage { opacity: 0; transition: opacity 0.55s ease; pointer-events: none; }
@@ -100,23 +125,6 @@
     animation-delay: 0.15s;
   }
 
-  .money {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: min(62%, 940px);
-    z-index: -1;
-    opacity: 0;
-    pointer-events: none;
-    filter: blur(1.5px) saturate(1.05);
-    -webkit-mask-image: linear-gradient(100deg, transparent 0%, rgba(0,0,0,0.35) 26%, #000 62%);
-    mask-image: linear-gradient(100deg, transparent 0%, rgba(0,0,0,0.35) 26%, #000 62%);
-    animation: moneyIn 1.8s ease forwards;
-    animation-delay: 0.1s;
-  }
-  .money-svg { width: 100%; height: 100%; display: block; }
-
   .hero-title {
     margin: 0;
     font-family: var(--font-serif);
@@ -131,8 +139,8 @@
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    filter: drop-shadow(0 0 26px rgba(168, 85, 247, 0.55))
-            drop-shadow(0 0 68px rgba(124, 58, 237, 0.42));
+    filter: drop-shadow(0 0 26px rgba(168, 85, 247, 0.6))
+            drop-shadow(0 0 70px rgba(88, 28, 135, 0.55));
     opacity: 0;
     transform: translateY(26px);
     animation: heroLine 0.95s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
@@ -141,17 +149,6 @@
   .hero-title .line2 { animation-delay: 0.55s; }
   .hero-title .name { font-weight: 600; }
 
-  .hero-tagline {
-    margin-top: 26px;
-    max-width: 30ch;
-    color: var(--muted);
-    font-size: clamp(14px, 1.6vw, 18px);
-    letter-spacing: 0.2px;
-    opacity: 0;
-    animation: fadeIn 0.9s ease forwards;
-    animation-delay: 1.15s;
-  }
-
   /* ---------- Card (password + dashboard) ---------- */
   .card {
     width: 100%;
@@ -159,8 +156,9 @@
     border: 1px solid var(--card-border);
     border-radius: var(--radius);
     padding: 34px 30px;
-    backdrop-filter: blur(14px);
-    box-shadow: 0 24px 60px rgba(20, 5, 45, 0.55);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 24px 60px rgba(8, 2, 20, 0.65);
   }
   .card h2 {
     font-family: var(--font-serif);
@@ -184,7 +182,7 @@
     padding: 14px 46px 14px 14px;
     border-radius: 12px;
     border: 1px solid var(--card-border);
-    background: rgba(10, 4, 22, 0.5);
+    background: rgba(6, 2, 16, 0.6);
     color: var(--text);
     font-size: 15px;
     outline: none;
@@ -240,12 +238,6 @@
     text-align: left;
   }
   .hint { color: var(--muted); font-size: 12px; margin-top: 16px; }
-  .hint code {
-    background: rgba(196, 132, 252, 0.14);
-    padding: 2px 6px;
-    border-radius: 6px;
-    color: var(--text);
-  }
 
   .shake { animation: shake 0.4s ease; }
 
@@ -275,7 +267,7 @@
     margin-bottom: 16px;
   }
   .asset {
-    background: rgba(10, 4, 22, 0.4);
+    background: rgba(6, 2, 16, 0.45);
     border: 1px solid var(--card-border);
     border-radius: 12px;
     padding: 16px;
@@ -299,7 +291,6 @@
   /* ---------- Keyframes ---------- */
   @keyframes heroLine { to { opacity: 1; transform: translateY(0); } }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes moneyIn { to { opacity: 0.6; } }
   @keyframes shake {
     0%, 100% { transform: translateX(0); }
     20% { transform: translateX(-8px); }
@@ -311,91 +302,194 @@
   @media (max-width: 640px) {
     .hero { align-items: center; text-align: center; }
     .hero-title { font-size: clamp(40px, 13vw, 72px); }
-    .money { width: 100%; opacity: 0.4; }
-    .hero-tagline { margin-left: auto; margin-right: auto; }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .stage { transition: opacity 0.2s ease; }
     .hero-title .line,
-    .hero-brand,
-    .hero-tagline { animation-duration: 0.001s; animation-delay: 0s; opacity: 1; }
+    .hero-brand { animation-duration: 0.001s; animation-delay: 0s; opacity: 1; }
     .hero-title .line { transform: none; }
-    .money { animation-duration: 0.001s; animation-delay: 0s; opacity: 0.6; }
+    #money-bg { opacity: 1; }
     .shake { animation: none; }
   }
 </style>
 </head>
-<body>
-  <!-- Stage 1: Welcome hero (full-bleed) -->
-  <section class="hero stage active" id="stage-welcome" aria-label="Welcome">
-    <div class="money" aria-hidden="true"><svg class="money-svg" viewBox="0 0 1100 760" preserveAspectRatio="xMaxYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+<body data-stage="welcome">
+  <!-- Money background (shown on welcome + password) -->
+  <div id="money-bg" aria-hidden="true"><svg viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
   <defs>
-    <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#4b3579"/>
-      <stop offset="1" stop-color="#2a1a49"/>
+    <linearGradient id="paper" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#52397f"/>
+      <stop offset="1" stop-color="#291a47"/>
     </linearGradient>
     <g id="bill">
-      <rect width="300" height="128" rx="9" fill="url(#paper)" stroke="#6f52a8" stroke-width="1.4"/>
-      <rect x="9" y="9" width="282" height="110" rx="6" fill="none" stroke="#7e63b8" stroke-width="1" opacity="0.7"/>
-      <circle cx="150" cy="64" r="34" fill="#3a2867" stroke="#8a6fc4" stroke-width="1.3"/>
-      <circle cx="150" cy="64" r="24" fill="none" stroke="#9c82d6" stroke-width="0.8" opacity="0.8"/>
-      <text x="20" y="34" font-family="Georgia, serif" font-size="26" font-weight="700" fill="#b9a2e8">100</text>
-      <text x="280" y="112" text-anchor="end" font-family="Georgia, serif" font-size="26" font-weight="700" fill="#b9a2e8">100</text>
-      <text x="18" y="110" font-family="Georgia, serif" font-size="9" letter-spacing="1.5" fill="#9781c6">THE UNITED STATES OF AMERICA</text>
-      <circle cx="46" cy="64" r="15" fill="none" stroke="#8a6fc4" stroke-width="1"/>
-      <circle cx="254" cy="64" r="15" fill="none" stroke="#8a6fc4" stroke-width="1"/>
+      <rect width="300" height="128" rx="10" fill="url(#paper)" stroke="#7a5cb4" stroke-width="1.6"/>
+      <rect x="8" y="8" width="284" height="112" rx="7" fill="none" stroke="#8f74c9" stroke-width="1.1" opacity="0.75"/>
+      <circle cx="150" cy="64" r="36" fill="#3a2867" stroke="#9a80d2" stroke-width="1.4"/>
+      <circle cx="150" cy="64" r="26" fill="none" stroke="#b199e0" stroke-width="0.9" opacity="0.85"/>
+      <circle cx="150" cy="64" r="15" fill="#2c1c52"/>
+      <text x="22" y="36" font-family="Georgia, serif" font-size="28" font-weight="700" fill="#c9b6ef">100</text>
+      <text x="278" y="110" text-anchor="end" font-family="Georgia, serif" font-size="28" font-weight="700" fill="#c9b6ef">100</text>
+      <text x="20" y="112" font-family="Georgia, serif" font-size="8.5" letter-spacing="1.4" fill="#9d86c8">THE UNITED STATES OF AMERICA</text>
+      <text x="280" y="30" text-anchor="end" font-family="Georgia, serif" font-size="7.5" letter-spacing="1" fill="#9d86c8">FEDERAL RESERVE NOTE</text>
+      <circle cx="52" cy="64" r="17" fill="none" stroke="#8f74c9" stroke-width="1.1"/>
+      <circle cx="52" cy="64" r="9" fill="none" stroke="#8f74c9" stroke-width="0.8" opacity="0.7"/>
+      <circle cx="248" cy="64" r="17" fill="none" stroke="#8f74c9" stroke-width="1.1"/>
+      <line x1="86" y1="34" x2="214" y2="34" stroke="#7d61b6" stroke-width="0.8" opacity="0.5"/>
+      <line x1="86" y1="94" x2="214" y2="94" stroke="#7d61b6" stroke-width="0.8" opacity="0.5"/>
     </g>
   </defs>
-  <g transform="translate(150 -40) rotate(-26)" opacity="0.9">
-      <use href="#bill" transform="translate(0 0) rotate(-2)"/>
-      <use href="#bill" transform="translate(150 0) rotate(1)"/>
-      <use href="#bill" transform="translate(300 0) rotate(-1)"/>
-      <use href="#bill" transform="translate(450 0) rotate(2)"/>
-      <use href="#bill" transform="translate(600 0) rotate(0)"/>
-      <use href="#bill" transform="translate(75 70) rotate(0)"/>
-      <use href="#bill" transform="translate(225 70) rotate(-2)"/>
-      <use href="#bill" transform="translate(375 70) rotate(1)"/>
-      <use href="#bill" transform="translate(525 70) rotate(-1)"/>
-      <use href="#bill" transform="translate(675 70) rotate(2)"/>
-      <use href="#bill" transform="translate(0 140) rotate(2)"/>
-      <use href="#bill" transform="translate(150 140) rotate(0)"/>
-      <use href="#bill" transform="translate(300 140) rotate(-2)"/>
-      <use href="#bill" transform="translate(450 140) rotate(1)"/>
-      <use href="#bill" transform="translate(600 140) rotate(-1)"/>
-      <use href="#bill" transform="translate(75 210) rotate(-1)"/>
-      <use href="#bill" transform="translate(225 210) rotate(2)"/>
-      <use href="#bill" transform="translate(375 210) rotate(0)"/>
-      <use href="#bill" transform="translate(525 210) rotate(-2)"/>
-      <use href="#bill" transform="translate(675 210) rotate(1)"/>
-      <use href="#bill" transform="translate(0 280) rotate(1)"/>
-      <use href="#bill" transform="translate(150 280) rotate(-1)"/>
-      <use href="#bill" transform="translate(300 280) rotate(2)"/>
-      <use href="#bill" transform="translate(450 280) rotate(0)"/>
-      <use href="#bill" transform="translate(600 280) rotate(-2)"/>
-      <use href="#bill" transform="translate(75 350) rotate(-2)"/>
-      <use href="#bill" transform="translate(225 350) rotate(1)"/>
-      <use href="#bill" transform="translate(375 350) rotate(-1)"/>
-      <use href="#bill" transform="translate(525 350) rotate(2)"/>
-      <use href="#bill" transform="translate(675 350) rotate(0)"/>
-      <use href="#bill" transform="translate(0 420) rotate(0)"/>
-      <use href="#bill" transform="translate(150 420) rotate(-2)"/>
-      <use href="#bill" transform="translate(300 420) rotate(1)"/>
-      <use href="#bill" transform="translate(450 420) rotate(-1)"/>
-      <use href="#bill" transform="translate(600 420) rotate(2)"/>
-      <use href="#bill" transform="translate(75 490) rotate(2)"/>
-      <use href="#bill" transform="translate(225 490) rotate(0)"/>
-      <use href="#bill" transform="translate(375 490) rotate(-2)"/>
-      <use href="#bill" transform="translate(525 490) rotate(1)"/>
-      <use href="#bill" transform="translate(675 490) rotate(-1)"/>
-      <use href="#bill" transform="translate(0 560) rotate(-1)"/>
-      <use href="#bill" transform="translate(150 560) rotate(2)"/>
-      <use href="#bill" transform="translate(300 560) rotate(0)"/>
-      <use href="#bill" transform="translate(450 560) rotate(-2)"/>
-      <use href="#bill" transform="translate(600 560) rotate(1)"/>
+  <rect width="1600" height="1000" fill="#1a0f30"/>
+  <g>
+      <use href="#bill" transform="translate(-190 -144) rotate(-42 150 64)"/>
+      <use href="#bill" transform="translate(-19 -97) rotate(-27 150 64)"/>
+      <use href="#bill" transform="translate(156 -130) rotate(-27 150 64)"/>
+      <use href="#bill" transform="translate(266 -131) rotate(-12 150 64)"/>
+      <use href="#bill" transform="translate(441 -115) rotate(-12 150 64)"/>
+      <use href="#bill" transform="translate(616 -100) rotate(-12 150 64)"/>
+      <use href="#bill" transform="translate(726 -101) rotate(3 150 64)"/>
+      <use href="#bill" transform="translate(901 -134) rotate(3 150 64)"/>
+      <use href="#bill" transform="translate(1011 -135) rotate(18 150 64)"/>
+      <use href="#bill" transform="translate(1186 -120) rotate(18 150 64)"/>
+      <use href="#bill" transform="translate(1361 -104) rotate(18 150 64)"/>
+      <use href="#bill" transform="translate(1471 -105) rotate(33 150 64)"/>
+      <use href="#bill" transform="translate(1646 -138) rotate(33 150 64)"/>
+      <use href="#bill" transform="translate(-115 -7) rotate(32 150 64)"/>
+      <use href="#bill" transform="translate(56 -8) rotate(-37 150 64)"/>
+      <use href="#bill" transform="translate(231 8) rotate(-37 150 64)"/>
+      <use href="#bill" transform="translate(341 7) rotate(-22 150 64)"/>
+      <use href="#bill" transform="translate(516 -26) rotate(-22 150 64)"/>
+      <use href="#bill" transform="translate(691 -11) rotate(-23 150 64)"/>
+      <use href="#bill" transform="translate(801 -12) rotate(-7 150 64)"/>
+      <use href="#bill" transform="translate(976 4) rotate(-7 150 64)"/>
+      <use href="#bill" transform="translate(1086 3) rotate(8 150 64)"/>
+      <use href="#bill" transform="translate(1261 18) rotate(8 150 64)"/>
+      <use href="#bill" transform="translate(1436 -15) rotate(7 150 64)"/>
+      <use href="#bill" transform="translate(1546 -16) rotate(23 150 64)"/>
+      <use href="#bill" transform="translate(1721 0) rotate(23 150 64)"/>
+      <use href="#bill" transform="translate(-190 131) rotate(22 150 64)"/>
+      <use href="#bill" transform="translate(-19 130) rotate(38 150 64)"/>
+      <use href="#bill" transform="translate(156 97) rotate(37 150 64)"/>
+      <use href="#bill" transform="translate(266 96) rotate(-32 150 64)"/>
+      <use href="#bill" transform="translate(441 111) rotate(-32 150 64)"/>
+      <use href="#bill" transform="translate(616 127) rotate(-33 150 64)"/>
+      <use href="#bill" transform="translate(726 126) rotate(-17 150 64)"/>
+      <use href="#bill" transform="translate(901 93) rotate(-18 150 64)"/>
+      <use href="#bill" transform="translate(1015 109) rotate(-18 150 64)"/>
+      <use href="#bill" transform="translate(1186 107) rotate(-2 150 64)"/>
+      <use href="#bill" transform="translate(1361 123) rotate(-3 150 64)"/>
+      <use href="#bill" transform="translate(1471 122) rotate(13 150 64)"/>
+      <use href="#bill" transform="translate(1646 89) rotate(13 150 64)"/>
+      <use href="#bill" transform="translate(-115 220) rotate(12 150 64)"/>
+      <use href="#bill" transform="translate(56 219) rotate(28 150 64)"/>
+      <use href="#bill" transform="translate(231 235) rotate(27 150 64)"/>
+      <use href="#bill" transform="translate(341 234) rotate(-42 150 64)"/>
+      <use href="#bill" transform="translate(516 249) rotate(-42 150 64)"/>
+      <use href="#bill" transform="translate(691 216) rotate(42 150 64)"/>
+      <use href="#bill" transform="translate(801 215) rotate(-27 150 64)"/>
+      <use href="#bill" transform="translate(976 231) rotate(-28 150 64)"/>
+      <use href="#bill" transform="translate(1090 246) rotate(-28 150 64)"/>
+      <use href="#bill" transform="translate(1261 245) rotate(-12 150 64)"/>
+      <use href="#bill" transform="translate(1436 212) rotate(-13 150 64)"/>
+      <use href="#bill" transform="translate(1546 211) rotate(3 150 64)"/>
+      <use href="#bill" transform="translate(1721 227) rotate(2 150 64)"/>
+      <use href="#bill" transform="translate(-190 358) rotate(2 150 64)"/>
+      <use href="#bill" transform="translate(-19 357) rotate(18 150 64)"/>
+      <use href="#bill" transform="translate(156 324) rotate(17 150 64)"/>
+      <use href="#bill" transform="translate(266 323) rotate(33 150 64)"/>
+      <use href="#bill" transform="translate(441 338) rotate(32 150 64)"/>
+      <use href="#bill" transform="translate(616 354) rotate(32 150 64)"/>
+      <use href="#bill" transform="translate(726 353) rotate(-37 150 64)"/>
+      <use href="#bill" transform="translate(901 320) rotate(-38 150 64)"/>
+      <use href="#bill" transform="translate(1015 335) rotate(-38 150 64)"/>
+      <use href="#bill" transform="translate(1186 334) rotate(-23 150 64)"/>
+      <use href="#bill" transform="translate(1361 350) rotate(-23 150 64)"/>
+      <use href="#bill" transform="translate(1471 349) rotate(-7 150 64)"/>
+      <use href="#bill" transform="translate(1646 365) rotate(-8 150 64)"/>
+      <use href="#bill" transform="translate(-115 447) rotate(-8 150 64)"/>
+      <use href="#bill" transform="translate(56 446) rotate(7 150 64)"/>
+      <use href="#bill" transform="translate(231 462) rotate(7 150 64)"/>
+      <use href="#bill" transform="translate(345 478) rotate(7 150 64)"/>
+      <use href="#bill" transform="translate(516 476) rotate(22 150 64)"/>
+      <use href="#bill" transform="translate(691 443) rotate(22 150 64)"/>
+      <use href="#bill" transform="translate(801 442) rotate(38 150 64)"/>
+      <use href="#bill" transform="translate(976 458) rotate(37 150 64)"/>
+      <use href="#bill" transform="translate(1090 473) rotate(37 150 64)"/>
+      <use href="#bill" transform="translate(1261 472) rotate(-33 150 64)"/>
+      <use href="#bill" transform="translate(1436 439) rotate(-33 150 64)"/>
+      <use href="#bill" transform="translate(1546 438) rotate(-17 150 64)"/>
+      <use href="#bill" transform="translate(1721 453) rotate(-18 150 64)"/>
+      <use href="#bill" transform="translate(-190 585) rotate(-18 150 64)"/>
+      <use href="#bill" transform="translate(-19 584) rotate(-3 150 64)"/>
+      <use href="#bill" transform="translate(156 600) rotate(-3 150 64)"/>
+      <use href="#bill" transform="translate(270 567) rotate(-3 150 64)"/>
+      <use href="#bill" transform="translate(441 565) rotate(12 150 64)"/>
+      <use href="#bill" transform="translate(616 581) rotate(12 150 64)"/>
+      <use href="#bill" transform="translate(726 580) rotate(27 150 64)"/>
+      <use href="#bill" transform="translate(901 596) rotate(27 150 64)"/>
+      <use href="#bill" transform="translate(1015 562) rotate(27 150 64)"/>
+      <use href="#bill" transform="translate(1186 561) rotate(42 150 64)"/>
+      <use href="#bill" transform="translate(1361 577) rotate(42 150 64)"/>
+      <use href="#bill" transform="translate(1475 593) rotate(41 150 64)"/>
+      <use href="#bill" transform="translate(1646 591) rotate(-28 150 64)"/>
+      <use href="#bill" transform="translate(-115 674) rotate(-28 150 64)"/>
+      <use href="#bill" transform="translate(56 673) rotate(-13 150 64)"/>
+      <use href="#bill" transform="translate(231 689) rotate(-13 150 64)"/>
+      <use href="#bill" transform="translate(345 704) rotate(-14 150 64)"/>
+      <use href="#bill" transform="translate(516 703) rotate(2 150 64)"/>
+      <use href="#bill" transform="translate(691 670) rotate(2 150 64)"/>
+      <use href="#bill" transform="translate(801 669) rotate(17 150 64)"/>
+      <use href="#bill" transform="translate(976 685) rotate(17 150 64)"/>
+      <use href="#bill" transform="translate(1090 700) rotate(16 150 64)"/>
+      <use href="#bill" transform="translate(1261 699) rotate(32 150 64)"/>
+      <use href="#bill" transform="translate(1436 715) rotate(32 150 64)"/>
+      <use href="#bill" transform="translate(1550 682) rotate(31 150 64)"/>
+      <use href="#bill" transform="translate(1721 680) rotate(-38 150 64)"/>
+      <use href="#bill" transform="translate(-190 812) rotate(-39 150 64)"/>
+      <use href="#bill" transform="translate(-19 811) rotate(-23 150 64)"/>
+      <use href="#bill" transform="translate(156 827) rotate(-23 150 64)"/>
+      <use href="#bill" transform="translate(270 793) rotate(-24 150 64)"/>
+      <use href="#bill" transform="translate(441 792) rotate(-8 150 64)"/>
+      <use href="#bill" transform="translate(616 808) rotate(-8 150 64)"/>
+      <use href="#bill" transform="translate(726 807) rotate(7 150 64)"/>
+      <use href="#bill" transform="translate(901 822) rotate(7 150 64)"/>
+      <use href="#bill" transform="translate(1015 789) rotate(6 150 64)"/>
+      <use href="#bill" transform="translate(1186 788) rotate(22 150 64)"/>
+      <use href="#bill" transform="translate(1361 804) rotate(22 150 64)"/>
+      <use href="#bill" transform="translate(1475 820) rotate(21 150 64)"/>
+      <use href="#bill" transform="translate(1646 818) rotate(37 150 64)"/>
+      <use href="#bill" transform="translate(-115 901) rotate(36 150 64)"/>
+      <use href="#bill" transform="translate(56 900) rotate(-33 150 64)"/>
+      <use href="#bill" transform="translate(231 916) rotate(-33 150 64)"/>
+      <use href="#bill" transform="translate(345 931) rotate(-34 150 64)"/>
+      <use href="#bill" transform="translate(516 930) rotate(-18 150 64)"/>
+      <use href="#bill" transform="translate(691 946) rotate(-19 150 64)"/>
+      <use href="#bill" transform="translate(805 913) rotate(-19 150 64)"/>
+      <use href="#bill" transform="translate(976 911) rotate(-3 150 64)"/>
+      <use href="#bill" transform="translate(1090 927) rotate(-4 150 64)"/>
+      <use href="#bill" transform="translate(1261 926) rotate(12 150 64)"/>
+      <use href="#bill" transform="translate(1436 942) rotate(11 150 64)"/>
+      <use href="#bill" transform="translate(1550 909) rotate(11 150 64)"/>
+      <use href="#bill" transform="translate(1721 907) rotate(27 150 64)"/>
+      <use href="#bill" transform="translate(-190 1039) rotate(26 150 64)"/>
+      <use href="#bill" transform="translate(-19 1038) rotate(42 150 64)"/>
+      <use href="#bill" transform="translate(156 1054) rotate(41 150 64)"/>
+      <use href="#bill" transform="translate(270 1020) rotate(41 150 64)"/>
+      <use href="#bill" transform="translate(441 1019) rotate(-28 150 64)"/>
+      <use href="#bill" transform="translate(616 1035) rotate(-29 150 64)"/>
+      <use href="#bill" transform="translate(730 1051) rotate(-29 150 64)"/>
+      <use href="#bill" transform="translate(901 1049) rotate(-14 150 64)"/>
+      <use href="#bill" transform="translate(1015 1016) rotate(-14 150 64)"/>
+      <use href="#bill" transform="translate(1186 1064) rotate(2 150 64)"/>
+      <use href="#bill" transform="translate(1361 1031) rotate(1 150 64)"/>
+      <use href="#bill" transform="translate(1475 1046) rotate(1 150 64)"/>
+      <use href="#bill" transform="translate(1646 1045) rotate(17 150 64)"/>
   </g>
 </svg></div>
+  <div id="money-tint" aria-hidden="true"></div>
 
+  <!-- Stage 1: Welcome hero (full-bleed) -->
+  <section class="hero stage active" id="stage-welcome" aria-label="Welcome">
     <div class="hero-brand brand">
       <span class="logo" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"
@@ -412,7 +506,6 @@
       <span class="line line1">Welcome,</span>
       <span class="line line2 name">Bradley Teeple</span>
     </h1>
-    <p class="hero-tagline">Track, manage, and account for every asset — in one place.</p>
   </section>
 
   <main class="app">
@@ -490,6 +583,7 @@
       };
 
       function showStage(name) {
+        document.body.setAttribute("data-stage", name);
         Object.keys(stages).forEach(function (key) {
           var el = stages[key];
           if (key === name) {
