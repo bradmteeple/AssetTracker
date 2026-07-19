@@ -448,8 +448,7 @@
           <button type="submit" class="btn">Unlock</button>
         </form>
 
-        <p class="hint">Demo password: <code>assets123</code> — this check runs
-          in your browser only and is not real security.</p>
+        <p class="hint">This is a client-side demo check — not real security.</p>
       </div>
     </section>
 
@@ -479,7 +478,7 @@
 
   <script>
     (function () {
-      var DEMO_PASSWORD = "assets123";
+      var DEMO_PASSWORD = "Tennis01!";
 
       var reduceMotion = window.matchMedia &&
         window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -536,7 +535,7 @@
         } else {
           errorEl.textContent = value.trim() === ""
             ? "Please enter your password."
-            : "Incorrect password. Try the demo password shown below.";
+            : "Try Again";
           card.classList.remove("shake");
           void card.offsetWidth;
           card.classList.add("shake");
